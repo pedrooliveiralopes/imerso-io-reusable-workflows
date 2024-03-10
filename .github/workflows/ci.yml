@@ -1,0 +1,50 @@
+name: CI-APP
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: false
+        type: string
+        default: ubuntu-latest
+
+jobs:
+  get-config:
+    outputs:
+      command: ${{ steps.format-config.outputs.command }}
+    runs-on: ${{ inputs.runs-on }} 
+    steps:      
+      - name: Clone Repository
+        uses: actions/checkout@v3
+
+      - name: Format Arquive Config CI
+        id: format-config
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const configJson = require("./config-ci.json") // Crie um arquivo JSON para rodar os scrips do package-json
+            let commands = configJson["run-command"]
+            core.setOutput("command", commands)
+  
+  run-command:
+    needs: get-config
+    runs-on: ${{ inputs.runs-on }}
+    strategy:
+      matrix:
+        command: ${{ fromJSON(needs.get-config.outputs.command) }}
+    steps:      
+      - name: Clone Repository
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/checkout@v3
+        with:
+          version: 18.x
+
+      - name: Run Command CI
+        run: |
+         npm i
+      
+      - name: Run Command CI
+        run: |
+         ${{ matrix.command }}
