@@ -1,0 +1,7 @@
+{
+    "run-command": [
+        "npm ci",
+        "npm run build",
+        "npm run lint"
+    ]
+}
